@@ -1,6 +1,6 @@
 # PostgreSQL
 
-![postgresql](/redhat_ansible/images/postgresql.png)
+![postgresql](https://github.com/ajtvicente/redhat_ansible/blob/ajtvicente/app/images/postgresql.png)
 
 ## Sumário
 
