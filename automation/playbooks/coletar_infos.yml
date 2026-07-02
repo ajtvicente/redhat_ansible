@@ -1,0 +1,37 @@
+---
+- name: Coletar especificações dos servidores RHEL
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    - name: Garantir que o diretório de relatórios existe localmente
+      ansible.builtin.file:
+        path: ./relatorios
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    - name: Criar o cabeçalho do arquivo CSV
+      ansible.builtin.copy:
+        content: "Hostname,IP_Address,Total_Memory_MB,CPU_Cores\n"
+        dest: ./relatorios/info_servidores.csv
+        force: no
+      delegate_to: localhost
+      run_once: true
+
+    - name: Adicionar as informações do servidor ao arquivo CSV
+      ansible.builtin.lineinfile:
+        path: ./relatorios/info_servidores.csv
+        line: "{{ ansible_hostname }},{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }},{{ ansible_memtotal_mb }},{{ ansible_processor_vcpus }}"
+      delegate_to: localhost
+
+    - name: Exibir resumo na tela
+      ansible.builtin.debug:
+        msg:
+          - "------------------------------------"
+          - "Hostname:   {{ ansible_hostname }}"
+          - "IP:         {{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+          - "Memória:    {{ ansible_memtotal_mb }} MB"
+          - "vCPUs:      {{ ansible_processor_vcpus }}"
+          - "------------------------------------"
