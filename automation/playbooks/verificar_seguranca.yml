@@ -1,0 +1,50 @@
+---
+- name: Auditoria de Segurança - CVEs Pendentes e Necessidade de Boot
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  tasks:
+    # -----------------------------------------------------------------
+    # BLCO 1: Garantir ferramentas necessárias
+    # -----------------------------------------------------------------
+    - name: Garantir que o dnf-plugins-core está instalado (para verificar reboot)
+      ansible.builtin.dnf:
+        name: dnf-plugins-core
+        state: present
+
+    # -----------------------------------------------------------------
+    # BLOCO 2: Verificar CVEs / Vulnerabilidades pendentes
+    # -----------------------------------------------------------------
+    - name: Coletar lista de CVEs pendentes no RHEL
+      ansible.builtin.command: dnf updateinfo list cves --quiet
+      register: dnf_cves
+      changed_when: false
+      failed_when: false
+
+    # -----------------------------------------------------------------
+    # BLOCO 3: Verificar se o servidor precisa de Reboot
+    # -----------------------------------------------------------------
+    - name: Verificar se o sistema precisa reiniciar (needs-restarting)
+      ansible.builtin.command: dnf needs-restarting -r
+      register: dnf_reboot_check
+      changed_when: false
+      # O comando retorna código 1 se precisar de reboot, e 0 se estiver OK.
+      # Evitamos que o Ansible considere o código 1 como uma falha na task.
+      failed_when: false
+
+    # -----------------------------------------------------------------
+    # BLOCO 4: Exibir Relatório Consolidado
+    # -----------------------------------------------------------------
+    - name: Relatório de Status de Segurança
+      ansible.builtin.debug:
+        msg:
+          - "=========================================================="
+          - "SERVIDOR: {{ ansible_hostname }} ({{ ansible_default_ipv4.address }})"
+          - "=========================================================="
+          - "STATUS DE REBOOT:"
+          - " > {{ '⚠️ REBOOT NECESSÁRIO (Core libraries/Kernel atualizados)' if dnf_reboot_check.rc == 1 else '✅ Sistema atualizado (Não requer reboot)' }}"
+          - ""
+          - "CVES PENDENTES:"
+          - "{{ dnf_cves.stdout_lines if dnf_cves.stdout != '' else ['✅ Nenhuma CVE pendente encontrada para os repositórios ativos.'] }}"
+          - "=========================================================="
