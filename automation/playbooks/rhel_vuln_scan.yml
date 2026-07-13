@@ -1,0 +1,41 @@
+---
+# Automação de avaliação de vulnerabilidades RHEL.
+#
+# Executa três etapas em cada host:
+#   (1) verifica se existem vulnerabilidades (atualizações de segurança)
+#   (2) lista as vulnerabilidades (advisories RHSA + CVEs)
+#   (3) verifica se é necessário reboot para aplicar a correção
+#
+# Contexto AAP (Ansible Automation Platform):
+#   Organization : Red Hat
+#   Inventory    : AWS Inventory
+#   Credential   : máquina (SSH) com privilégio sudo nos hosts RHEL
+#
+# Execução local (fora do AAP):
+#   ansible-playbook playbooks/rhel_vuln_scan.yml -i <inventario_aws>
+#
+# Para também aplicar as correções (cuidado):
+#   ansible-playbook playbooks/rhel_vuln_scan.yml -e apply_security_updates=true -e auto_reboot=true
+- name: Avaliar vulnerabilidades em RHEL (AWS Inventory / Org Red Hat)
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: true
+  # Coleta fatos em paralelo; não falha o play inteiro se um host cair.
+  any_errors_fatal: false
+  max_fail_percentage: 100
+
+  roles:
+    - role: rhel_vulnerability_scan
+
+  post_tasks:
+    - name: Resumo consolidado da varredura
+      run_once: true
+      delegate_to: localhost
+      ansible.builtin.debug:
+        msg: >-
+          Varredura concluída em {{ ansible_play_hosts_all | length }} host(s).
+          Com vulnerabilidades:
+          {{ ansible_play_hosts
+             | map('extract', hostvars)
+             | selectattr('has_vulnerabilities', 'defined')
+             | selectattr('has_vulnerabilities')
+             | map(attribute='inventory_hostname') | list }}
