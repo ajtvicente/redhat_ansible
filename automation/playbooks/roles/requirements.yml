@@ -1,0 +1,7 @@
+---
+# Roles externas (Ansible Galaxy / Git).
+# Instale com: ansible-galaxy role install -r roles/requirements.yml -p roles
+roles: []
+# Exemplo:
+#  - name: geerlingguy.pip
+#    version: "2.2.0"
