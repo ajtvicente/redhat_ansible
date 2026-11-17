@@ -8,20 +8,20 @@
     db_user: "{{ ansible_user }}"
     db_pass: "{{ ansible_password }}"
     db_host: "{{ ansible_host }}"
-#    temp_output_file: "/tmp/db2_query_result.txt"
+    temp_output_file: "/tmp/db2_query_result.txt"
 
   tasks:
     - name: Executar query e salvar em arquivo temporário (com senha protegida)
       shell: |
         # Carrega o ambiente do Db2 usando o caminho absoluto padrão
-#        . /home/db2inst1/sqllib/db2profile
+        . /home/db2inst1/sqllib/db2profile
         
-#        db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
+        db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
         db2 connect to {{ db_name }}
         db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1" > {{ temp_output_file }}
         db2 connect reset
         db2 detach
-#      no_log: true
+      no_log: true
 
     - name: Ler o resultado salvo no arquivo temporário
       command: cat {{ temp_output_file }}
