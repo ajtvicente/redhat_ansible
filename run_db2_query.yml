@@ -13,8 +13,8 @@
   tasks:
     - name: Executar query e salvar em arquivo temporário (com senha protegida)
       shell: |
-        # Carrega o ambiente do Db2 do usuário proprietário da instância
-        . ~{{ db_user }}/sqllib/db2profile
+        # Carrega o ambiente do Db2 usando o caminho absoluto padrão
+        . /home/db2inst1/sqllib/db2profile
         
         db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
         db2 connect to {{ db_name }}
