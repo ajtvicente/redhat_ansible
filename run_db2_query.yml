@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars:
-    db_name: "PRODDB"
+    db_name: "BRADESCO"
     db_user: "{{ ansible_user }}"
     db_pass: "{{ ansible_password }}"
     db_host: "{{ ansible_host }}"
@@ -18,7 +18,7 @@
         db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1" > {{ temp_output_file }}
         db2 connect reset
         db2 detach
-      no_log: true # Mantém a senha e a execução protegidas
+#      no_log: true # Mantém a senha e a execução protegidas
 
     - name: Ler o resultado salvo no arquivo temporário
       command: cat {{ temp_output_file }}
