@@ -1,6 +1,6 @@
 ---
 - name: Executar Query no IBM Db2 e Exibir Resultado
-  hosts: db2_database_nodes
+  hosts: all
   gather_facts: false
 
   vars:
