@@ -13,13 +13,13 @@
   tasks:
     - name: Executar query SELECT CURRENT TIMESTAMP via Db2 CLI
       shell: |
-        db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
+#        db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
         db2 connect to {{ db_name }}
         db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1"
         db2 connect reset
         db2 detach
       register: query_result
-#      no_log: true # Mantém a senha protegida nesta task
+      no_log: true # Mantém a senha protegida nesta task
 
     - name: Exibir o resultado da consulta SQL
       debug:
