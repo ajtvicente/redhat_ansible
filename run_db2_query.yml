@@ -1,6 +1,6 @@
 ---
 - name: Executar Query de Teste no IBM Db2
-  hosts: db2_database_nodes
+  hosts: all
   gather_facts: false
 
   vars:
