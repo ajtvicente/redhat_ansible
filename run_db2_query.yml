@@ -1,6 +1,6 @@
 ---
 - name: Executar Query no IBM Db2 e Exibir Resultado
-  hosts: all
+  hosts: db2_database_nodes
   gather_facts: false
 
   vars:
@@ -13,12 +13,15 @@
   tasks:
     - name: Executar query e salvar em arquivo temporário (com senha protegida)
       shell: |
+        # Carrega o ambiente do Db2 do usuário proprietário da instância
+        . ~{{ db_user }}/sqllib/db2profile
+        
         db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
         db2 connect to {{ db_name }}
         db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1" > {{ temp_output_file }}
         db2 connect reset
         db2 detach
-#      no_log: true # Mantém a senha e a execução protegidas
+#      no_log: true
 
     - name: Ler o resultado salvo no arquivo temporário
       command: cat {{ temp_output_file }}
