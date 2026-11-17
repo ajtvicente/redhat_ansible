@@ -5,7 +5,6 @@
 
   vars:
     db_name: "PRODDB"
-    # As variáveis abaixo vêm diretamente da credencial customizada do AAP
     db_user: "{{ ansible_user }}"
     db_pass: "{{ ansible_password }}"
     db_port: "{{ db2_port | default(50000) }}"
@@ -20,7 +19,7 @@
         db2 connect reset
         db2 detach
       register: query_result
-      no_log: true # Protege a senha para que não apareça nos logs do AAP
+      no_log: true # Mantém a senha protegida nesta task
 
     - name: Exibir o resultado da consulta SQL
       debug:
