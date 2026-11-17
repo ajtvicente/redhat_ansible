@@ -1,26 +1,34 @@
 ---
-- name: Executar Query de Teste no IBM Db2
+- name: Executar Query no IBM Db2 e Exibir Resultado
   hosts: all
   gather_facts: false
 
   vars:
-    db_name: "BRADESCO"
+    db_name: "PRODDB"
     db_user: "{{ ansible_user }}"
     db_pass: "{{ ansible_password }}"
-    db_port: "{{ db2_port | default(50000) }}"
     db_host: "{{ ansible_host }}"
+    temp_output_file: "/tmp/db2_query_result.txt"
 
   tasks:
-    - name: Executar query SELECT CURRENT TIMESTAMP via Db2 CLI
+    - name: Executar query e salvar em arquivo temporário (com senha protegida)
       shell: |
-        db2 attach to 18.116.97.145 user db2inst1 using ibm.123
-        db2 connect to BRADESCO
-        db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1"
+        db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
+        db2 connect to {{ db_name }}
+        db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1" > {{ temp_output_file }}
         db2 connect reset
         db2 detach
-      register: query_result
-      no_log: true # Mantém a senha protegida nesta task
+      no_log: true # Mantém a senha e a execução protegidas
 
-    - name: Exibir o resultado da consulta SQL
+    - name: Ler o resultado salvo no arquivo temporário
+      command: cat {{ temp_output_file }}
+      register: query_output
+
+    - name: Exibir o resultado da consulta SQL no log do AAP
       debug:
-        msg: "{{ query_result.stdout_lines }}"
+        msg: "{{ query_output.stdout_lines }}"
+
+    - name: Limpar arquivo temporário do servidor
+      file:
+        path: "{{ temp_output_file }}"
+        state: absent
