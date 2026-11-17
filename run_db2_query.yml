@@ -19,7 +19,7 @@
         db2 connect reset
         db2 detach
       register: query_result
-      no_log: true # Mantém a senha protegida nesta task
+#      no_log: true # Mantém a senha protegida nesta task
 
     - name: Exibir o resultado da consulta SQL
       debug:
