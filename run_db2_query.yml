@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars:
-    db_name: "PRODDB"
+    db_name: "BRADESCO"
     db_user: "{{ ansible_user }}"
     db_pass: "{{ ansible_password }}"
     db_port: "{{ db2_port | default(50000) }}"
