@@ -1,0 +1,27 @@
+---
+- name: Executar Query de Teste no IBM Db2
+  hosts: db2_database_nodes
+  gather_facts: false
+
+  vars:
+    db_name: "PRODDB"
+    # As variáveis abaixo vêm diretamente da credencial customizada do AAP
+    db_user: "{{ ansible_user }}"
+    db_pass: "{{ ansible_password }}"
+    db_port: "{{ db2_port | default(50000) }}"
+    db_host: "{{ ansible_host }}"
+
+  tasks:
+    - name: Executar query SELECT CURRENT TIMESTAMP via Db2 CLI
+      shell: |
+        db2 attach to {{ db_host }} user {{ db_user }} using '{{ db_pass }}'
+        db2 connect to {{ db_name }}
+        db2 "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1"
+        db2 connect reset
+        db2 detach
+      register: query_result
+      no_log: true # Protege a senha para que não apareça nos logs do AAP
+
+    - name: Exibir o resultado da consulta SQL
+      debug:
+        msg: "{{ query_result.stdout_lines }}"
